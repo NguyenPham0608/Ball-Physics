@@ -6,8 +6,10 @@ const w = window.innerWidth;
 const h = window.innerHeight;
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, w / h, 0.1, 1000);
-camera.position.z = 10; // Adjust z position to see the whole scene.
-camera.position.y = 60;
+camera.position.z = 200 ; // Adjust z position to see the whole scene.
+camera.position.y = 200;
+camera.position.x = 200;
+
 
 let mouseX = 0;
 let mouseY = 0;
@@ -22,9 +24,9 @@ controls.enableDamping = true;
 controls.dampingFactor = 0.03;
 controls.update();
 
-const radius = 2;
+const radius = 10 ;
 
-const geometry = new THREE.IcosahedronGeometry(radius, 1);
+const geometry = new THREE.IcosahedronGeometry(radius, 11);
 const material = new THREE.MeshNormalMaterial({
   flatShading: true,
 });
@@ -43,14 +45,36 @@ function getBall(ballX, ballY, ballZ) {
   };
 
   const dampingMult = 0.98;
-  const repelStrength = 0.007;
+  const repelStrength = 0.5  ;
 
   function update(allBalls) {
     velocity.x *= dampingMult;
     velocity.z *= dampingMult;
 
+    // Update position
     mesh.position.x += velocity.x;
     mesh.position.z += velocity.z;
+
+    // Bounce off edges of the plane (adjust these values based on your plane size)
+    const planeWidth = 100; // Half of the plane's width (change if necessary)
+    const planeHeight = 100; // Half of the plane's height (change if necessary)
+
+    // Check for collisions with the edges
+    if (mesh.position.x <= -planeWidth + radius) {
+      mesh.position.x = -planeWidth + radius; // Keep the ball within bounds
+      velocity.x *= -1; // Reverse the x velocity
+    } else if (mesh.position.x >= planeWidth - radius) {
+      mesh.position.x = planeWidth - radius; // Keep the ball within bounds
+      velocity.x *= -1; // Reverse the x velocity
+    }
+
+    if (mesh.position.z <= -planeHeight + radius) {
+      mesh.position.z = -planeHeight + radius; // Keep the ball within bounds
+      velocity.z *= -1; // Reverse the z velocity
+    } else if (mesh.position.z >= planeHeight - radius) {
+      mesh.position.z = planeHeight - radius; // Keep the ball within bounds
+      velocity.z *= -1; // Reverse the z velocity
+    }
 
     const direction = new THREE.Vector3(0, 0, 0);
     allBalls.forEach((b) => {
@@ -63,6 +87,7 @@ function getBall(ballX, ballY, ballZ) {
           .multiplyScalar(repelStrength);
         b.velocity.x += direction.x;
         b.velocity.z += direction.z;
+        
       }
     });
   }
@@ -73,6 +98,7 @@ function getBall(ballX, ballY, ballZ) {
     velocity,
   };
 }
+
 
 const balls = [];
 
@@ -124,12 +150,12 @@ function handleKeyDown(e) {
 
 // Create a plane to act as a ground for raycasting
 const planeGeometry = new THREE.PlaneGeometry(200, 200);
-const planeMaterial = new THREE.MeshBasicMaterial({ visible: false }); // Make the plane invisible
+const planeMaterial = new THREE.MeshBasicMaterial({ wireframe:true }); // Make the plane invisible
 const plane = new THREE.Mesh(planeGeometry, planeMaterial);
 plane.rotation.x = -Math.PI / 2; // Rotate the plane to be horizontal
 scene.add(plane);
 
-window.addEventListener("keydown", handleKeyDown);
+window.addEventListener("keydown", handleKeyDown); 
 
 window.addEventListener("mousemove", function (e) {
   // Normalize mouse coordinates
