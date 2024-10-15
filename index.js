@@ -192,3 +192,13 @@ window.addEventListener("mousemove", function (e) {
   mouseY = -(e.clientY / window.innerHeight) * 2 + 1;
   mouse.set(mouseX, mouseY);
 });
+
+window.addEventListener("click", function(){
+  raycaster.setFromCamera(mouse, camera);
+    const intersects = raycaster.intersectObjects([plane]);
+
+    if (intersects.length > 0) {
+      formBall(intersects[0].point);
+    }
+});
+
