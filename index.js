@@ -40,9 +40,24 @@ scene.add(ambiLights);
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2(); // Stores normalized mouse coordinates
 
-const stars = getStarfield({ numstars: 2000 });
+const stars = getStarfield({ numstars: 500 });
 scene.add(stars);
 
+// Create a plane geometry
+const planeGeometry = new THREE.PlaneGeometry(500, 500);
+const planeMaterial = new THREE.MeshBasicMaterial({ wireframe: true , visible: false});
+const plane = new THREE.Mesh(planeGeometry, planeMaterial);
+plane.rotation.x = -Math.PI / 2;
+scene.add(plane);
+
+// Create the outline for the plane
+const edges = new THREE.EdgesGeometry(planeGeometry);
+const outlineMaterial = new THREE.LineBasicMaterial({ color: 0xffffff, linewidth: 2 });
+const outline = new THREE.LineSegments(edges, outlineMaterial);
+outline.rotation.x = -Math.PI / 2; // Same rotation as the plane
+scene.add(outline);
+
+// Function to create balls and apply physics
 function getBall(ballX, ballY, ballZ) {
   const randomNumber = THREE.MathUtils.randInt(0, 2);
   const randomTexture = textures[randomNumber];
@@ -73,11 +88,7 @@ function getBall(ballX, ballY, ballZ) {
   let repelStrength;
   let pullSpeed;
 
-  switch (randomNumber) {
-    case 0: repelStrength = 0.1; dampingMult = 0.95; pullSpeed = 0.001; break;
-    case 1: repelStrength = 0.1; dampingMult = 0.99; pullSpeed = 0.01; break;
-    case 2: repelStrength = 0.1; dampingMult = 0.9; pullSpeed = 0.00001; break;
-  }
+  repelStrength = 0.4; dampingMult = 0.95; pullSpeed = 0.001
 
   function update(allBalls) {
     velocity.x *= dampingMult;
@@ -94,8 +105,8 @@ function getBall(ballX, ballY, ballZ) {
     const rollAxis = new THREE.Vector3(-velocity.z, 0, velocity.x).normalize();
     mesh.rotateOnAxis(rollAxis, -rollAngle);
  
-    const planeWidth = 100;
-    const planeHeight = 100;
+    const planeWidth = 500;
+    const planeHeight = 500;
 
     if (mesh.position.x <= -planeWidth + radius || mesh.position.x >= planeWidth - radius) {
       velocity.x *= -1;
@@ -174,12 +185,6 @@ function handleKeyDown(e) {
   }
 }
 
-const planeGeometry = new THREE.PlaneGeometry(500, 500);
-const planeMaterial = new THREE.MeshBasicMaterial({ wireframe: true });
-const plane = new THREE.Mesh(planeGeometry, planeMaterial);
-plane.rotation.x = -Math.PI / 2;
-scene.add(plane);
-
 window.addEventListener("keydown", handleKeyDown);
 
 window.addEventListener("mousemove", function (e) {
@@ -187,5 +192,3 @@ window.addEventListener("mousemove", function (e) {
   mouseY = -(e.clientY / window.innerHeight) * 2 + 1;
   mouse.set(mouseX, mouseY);
 });
-
-NaN=NaN
