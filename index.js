@@ -193,7 +193,7 @@ window.addEventListener("mousemove", function (e) {
   mouse.set(mouseX, mouseY);
 });
 
-window.addEventListener("click", function(){
+window.addEventListener("touchstart", function(){
   raycaster.setFromCamera(mouse, camera);
     const intersects = raycaster.intersectObjects([plane]);
 
